@@ -1,69 +1,70 @@
-
 # import tkinter as tk
 from tkinter import *
+from PIL import Image, ImageTk
+from Intro import IntroPage
+from OrderType import OrderTypePage
 
 root = Tk()
 
 root.geometry("540x960+583+20")
 
+introPage = Frame(root)
 landingPage = Frame(root)
 orderPage = Frame(root)
-
 orderTypePage = Frame(root)
-orderRamenPage = Frame(root)
-orderDonburiPage = Frame(root)
-orderOthersPage = Frame(root)
+
+menuPage = Frame(root)
+menuRamenPage = Frame(root)
+menuDonburiPage = Frame(root)
+menuOthersPage = Frame(root)
+
+yellowPalette = "#CDAE00"
+redPalette = "#730C03"
+whitePalette = "#FFFFFF"
+
+# Manipulating the headbar doesnt matter since we will remove this to achieve kiosk
+root.title("Python - KIOSK")
+iconLogo = PhotoImage(file='reso/LOGO.png')
+root.iconphoto(True, iconLogo)
+root.resizable(False, False)
 
 landingPage.pack(fill="both", expand=True)
+landingPage.config(background=yellowPalette)
+
+IntroPage(root, landingPage)
+
+# Ads/Promo
+ads = ['reso/1stAd.png', 'reso/2ndAd.png', 'reso/3rdAd.png']
+
+# Preload the images ONCE
+preloaded_ads = []
+for a in ads:
+    img = Image.open(a).resize((486, 738))
+    preloaded_ads.append(ImageTk.PhotoImage(img))
+
+ad_index = 0
+
+adLabel = Label(landingPage, bg=yellowPalette)
+adLabel.place(relx=0.06, rely=0.02, anchor='nw')
+
+def rotate_ad():
+    global ad_index
+    adLabel.config(image=preloaded_ads[ad_index])
+    ad_index = (ad_index + 1) % len(preloaded_ads)
+    landingPage.after(2500, rotate_ad)
+
+rotate_ad()
 
 
-def go_to_order_type():
-    landingPage.pack_forget()
-    orderTypePage.pack(fill="both", expand=True)
+# Real Logo top left
+img = Image.open('reso/realLogo.png')
+reImg = img.resize((120,108))
+landingLogo = ImageTk.PhotoImage(reImg)
+logoLabel = Label(landingPage, image=landingLogo, bg=yellowPalette)
+logoLabel.place(relx=0.02, rely=0, anchor='nw')
 
-    btnDineIn = Button(orderTypePage, text="DINE-IN", font=('Baloo Tammudu', 45), command=go_to_order)
-    btnTakeOut = Button(orderTypePage, text="TAKE OUT", font=('Baloo Tammudu', 45), command=go_to_order)
-
-    btnDineIn.pack()
-    btnTakeOut.pack()
-
-btnStart = Button(landingPage, text="TAP TO START", font=('Baloo Tammudu', 80), command=go_to_order_type)
-btnStart.pack()
-
-def show_ramen_items():
-    menu = {
-        "Ramen": {
-            "Shoyu": 349,
-            "Spicy Miso": 369,
-            "Tonkotsu": 399
-        },
-        "Donburi": {
-            "Beef": 180,
-            "Chicken": 170,
-            "Vegetable": 150
-        },
-        "Others": {
-            "Beef": 180,
-            "Chicken": 170,
-            "Vegetable": 150
-        }
-    }
-
-def go_to_order():
-    orderTypePage.pack_forget()
-    orderPage.pack(fill="both", expand=True)
-
-    sections = ['Ramen', 'Donburi', 'Others']
-
-    btnRamen = Button(orderPage, text="RAMEN", font=('Baloo Tammudu', 45), command=show_ramen_items)
-    btnDonburi = Button(orderPage, text="DONBURI", font=('Baloo Tammudu', 45))
-    btnOthers = Button(orderPage, text="OTHERS", font=('Baloo Tammudu', 45))
-
-    btnRamen.pack()
-    btnDonburi.pack()
-    btnOthers.pack()
-
-    
-
+btnStart = Button(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30), fg=whitePalette, bg=redPalette, borderwidth=0, highlightthickness=0, command=lambda: OrderTypePage(landingPage, orderTypePage, menuPage))
+# btnStart = ctk.CTkButton(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30),  width=492, height=141, fg_color=whitePalette, bg_color=redPalette, command=lambda: OrderTypePage(landingPage, orderTypePage, orderRamenPage))
+btnStart.place(relx=0.5, rely=0.895, width=500, height=141, anchor='center')
 
 root.mainloop()
