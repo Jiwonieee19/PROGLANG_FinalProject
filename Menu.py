@@ -4,6 +4,9 @@ import customtkinter as ctk
 from PIL import Image, ImageTk
 from DynamicFont import *
 from OrderType import *
+from CartRender import render_cart
+from ScrollbarStyle import configure_scrollbar_style
+from MenuLists import ramenListImg, donburiListImg, otherListImg
 
 # Global cart storage
 cart_items = []
@@ -19,65 +22,15 @@ def MenuPage(orderTypePage, menuPage):
     whitePalette = "#FFFFFF"
     greenButton = "#167303"
 
-    # Style ttk scrollbar to match palette
-    style = ttk.Style()
-    try:
-        style.theme_use("clam")
-    except Exception:
-        pass
-    style.configure(
-        "Red.Horizontal.TScrollbar",
-        troughcolor=redPalette,
-        background=redPalette,
-        darkcolor=redPalette,
-        lightcolor=redPalette,
-        bordercolor=redPalette,
-        arrowcolor=whitePalette,
-    )
-    style.map(
-        "Red.Horizontal.TScrollbar",
-        background=[("active", redPalette)],
-        arrowcolor=[("active", whitePalette)],
-    )
+    # Configure scrollbar style
+    configure_scrollbar_style(redPalette, whitePalette)
 
     global topRightLogo, ramenText, myorderText, RAMENPhoto, DONPhoto
     global cart_items, cart_image_refs
 
-    def render_cart(cart_frame):
-        """Refresh cart thumbnails inside frame2Bg."""
-        for widget in cart_frame.winfo_children():
-            widget.destroy()
-
-        cart_image_refs.clear()
-
-        thumb_size = (int(110 / 1.8), int(132 / 1.8))  # downscale from menu images
-
-        if not cart_items:
-            try:
-                placeholder_img = Image.open('reso/FinalReso/ICON/default.png')
-                placeholder_img = placeholder_img.resize(thumb_size, Image.LANCZOS)
-                placeholder_photo = ImageTk.PhotoImage(placeholder_img)
-                cart_image_refs.append(placeholder_photo)
-                ctk.CTkLabel(cart_frame, image=placeholder_photo, text="", fg_color=redPalette).pack(side="left", padx=5)
-            except FileNotFoundError:
-                pass
-            return
-
-        for img_path in cart_items:
-            try:
-                img = Image.open(img_path)
-                img = img.resize(thumb_size, Image.LANCZOS)
-                photo = ImageTk.PhotoImage(img)
-                cart_image_refs.append(photo)
-
-                thumb = ctk.CTkLabel(cart_frame, image=photo, text="", fg_color=redPalette)
-                thumb.pack(side="left", padx=5)
-            except FileNotFoundError:
-                continue
-
     def add_to_cart(img_path, cart_frame):
         cart_items.append(img_path)
-        render_cart(cart_frame)
+        render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
 
     def goBack():
         menuPage.pack_forget()      # hide current page
@@ -138,40 +91,43 @@ def MenuPage(orderTypePage, menuPage):
     cart_frame.bind("<Configure>", _sync_scrollregion)
 
     # Initial render of empty cart
-    render_cart(cart_frame)
-
-    # Sample list of images from reso
-    ramenListImg = [
-        "reso/FinalReso/RAMEN/Tonkotsu Ramen.png",
-        "reso/FinalReso/RAMEN/Shoyu Ramen.png",
-        "reso/FinalReso/RAMEN/Shio Ramen.png",
-        "reso/FinalReso/RAMEN/Kitakata Ramen.png",
-        "reso/FinalReso/RAMEN/Spicy Miso Ramen.png",
-    ]
+    render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
 
     # Store references to prevent garbage collection
     image_references = []
 
-    # Display images in 2 columns
-    for i, img_path in enumerate(ramenListImg):
-        # Create row frame every 2 images
-        if i % 2 == 0:
-            row_frame = ctk.CTkFrame(image_frame, fg_color=redPalette)
-            row_frame.pack(fill="x", padx=5, pady=5)
+    def display_items(item_list, section_name):
+        """Clear and display items from the selected section."""
+        nonlocal image_references
+        
+        # Clear previous items
+        for widget in image_frame.winfo_children():
+            widget.destroy()
+        image_references.clear()
 
-        try:
-            # Load and resize image
-            img = Image.open(img_path)
-            img = img.resize((110, 132), Image.LANCZOS)
-            photo = ImageTk.PhotoImage(img)
-            image_references.append(photo)  # Keep reference
+        # Display images in 2 columns
+        for i, img_path in enumerate(item_list):
+            # Create row frame every 2 images
+            if i % 2 == 0:
+                row_frame = ctk.CTkFrame(image_frame, fg_color=redPalette)
+                row_frame.pack(fill="x", padx=5, pady=5)
 
-            # Create image button without text
-            img_button = ctk.CTkButton(row_frame, image=photo, text="", fg_color=redPalette, bg_color=redPalette,
-                                       command=lambda p=img_path: add_to_cart(p, cart_frame))
-            img_button.pack(side="left", padx=5, pady=5)
-        except FileNotFoundError:
-            pass  # Skip missing images
+            try:
+                # Load and resize image
+                img = Image.open(img_path)
+                img = img.resize((110, 132), Image.LANCZOS)
+                photo = ImageTk.PhotoImage(img)
+                image_references.append(photo)  # Keep reference
+
+                # Create image button without text
+                img_button = ctk.CTkButton(row_frame, image=photo, text="", fg_color=redPalette, bg_color=redPalette,
+                                           command=lambda p=img_path: add_to_cart(p, cart_frame))
+                img_button.pack(side="left", padx=5, pady=5)
+            except FileNotFoundError:
+                pass  # Skip missing images
+
+    # Display ramen items initially
+    display_items(ramenListImg, "RAMEN SECTION")
 
     ramenText = usingOurFont('RAMEN SECTION', 280, 38, whitePalette)
     # Create label with the text image
@@ -190,28 +146,31 @@ def MenuPage(orderTypePage, menuPage):
     RAMENImg = RAMENImg.resize((110, 110), Image.LANCZOS)
     RAMENPhoto = ImageTk.PhotoImage(RAMENImg)
     # sidebar button
-    sideButton1 = ctk.CTkButton(menuPage, image=RAMENPhoto, text="", fg_color=redPalette,  bg_color=redPalette)
+    sideButton1 = ctk.CTkButton(menuPage, image=RAMENPhoto, text="", fg_color=redPalette,  bg_color=redPalette,
+                                command=lambda: display_items(ramenListImg, "RAMEN SECTION"))
     sideButton1.place(relx=0.19, rely=0.27, anchor='center')
 
     DONImg = Image.open("reso/FinalReso/DONBURI/DONBURI.png")
     DONImg = DONImg.resize((110, 110), Image.LANCZOS)
     DONPhoto = ImageTk.PhotoImage(DONImg)
     # sidebar button
-    sideButton2 = ctk.CTkButton(menuPage, image=DONPhoto, text="", fg_color=redPalette,  bg_color=redPalette)
+    sideButton2 = ctk.CTkButton(menuPage, image=DONPhoto, text="", fg_color=redPalette,  bg_color=redPalette,
+                                command=lambda: display_items(donburiListImg, "DONBURI SECTION"))
     sideButton2.place(relx=0.19, rely=0.40, anchor='center')
 
     OTHERImg = Image.open("reso/FinalReso/OTHERS/OTHERS.png")
     OTHERImg = OTHERImg.resize((110, 110), Image.LANCZOS)
     OTHERPhoto = ImageTk.PhotoImage(OTHERImg)
     # sidebar button
-    sideButton3 = ctk.CTkButton(menuPage, image=OTHERPhoto, text="", fg_color=redPalette,  bg_color=redPalette)
+    sideButton3 = ctk.CTkButton(menuPage, image=OTHERPhoto, text="", fg_color=redPalette,  bg_color=redPalette,
+                                command=lambda: display_items(otherListImg, "OTHERS SECTION"))
     sideButton3.place(relx=0.19, rely=0.53, anchor='center')
 
 
     def Clear(cart_frame):
         global cart_items
         cart_items = []
-        render_cart(cart_frame)
+        render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
 
    # mid yellow breaker
     topBreaker = ctk.CTkFrame(menuPage, width=5, height=480, corner_radius=3, fg_color=yellowPalette)
