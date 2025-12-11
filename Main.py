@@ -31,10 +31,10 @@ root.resizable(False, False)
 landingPage.pack(fill="both", expand=True)
 landingPage.config(background=yellowPalette)
 
-IntroPage(root, landingPage)
+# IntroPage(root, landingPage)
 
 # Ads/Promo
-ads = ['reso/1stAd.png', 'reso/2ndAd.png', 'reso/3rdAd.png']
+ads = ['reso/3rdAd.png', 'reso/1stAd.png', 'reso/2ndAd.png']
 
 # Preload the images ONCE
 preloaded_ads = []
@@ -51,7 +51,7 @@ def rotate_ad():
     global ad_index
     adLabel.config(image=preloaded_ads[ad_index])
     ad_index = (ad_index + 1) % len(preloaded_ads)
-    landingPage.after(2500, rotate_ad)
+    landingPage.after(2100, rotate_ad)
 
 rotate_ad()
 
