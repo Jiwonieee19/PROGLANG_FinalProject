@@ -2,7 +2,8 @@ from tkinter import *
 from PIL import Image, ImageTk
 import customtkinter as ctk
 from DynamicFont import *
-from MenuLists import ramenListImg, donburiListImg, otherListImg
+from MenuLists import ramenListImg, donburiListImg, otherListImg, item_prices as menu_prices
+from MakeChoiceLists import addOnListImg, drinksListImg, item_prices as makechoice_prices
 
 def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e open, unsa e next sa button)
 
@@ -16,6 +17,60 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
     greenButton = "#167303"
 
     global makeChoiceTopRightLogo, BgYellow, AddOnBgYellow, DrinksBgYellow, choiceText, label1, label2, label3, selectedItemPhoto
+    global addOnImageRefs, drinksImageRefs, orderDetailsLabel
+
+    addOnImageRefs = []
+    drinksImageRefs = []
+    
+    def calculate_total_cost():
+        """Calculate total cost from dish, add-ons, and drinks."""
+        total = 0
+        # Get dish price
+        total += menu_prices.get(order["item"], 0)
+        # Get add-ons price
+        for addon in order["addOns"]:
+            total += makechoice_prices.get(addon, 0)
+        # Get drinks price
+        for drink in order["drinks"]:
+            total += makechoice_prices.get(drink, 0)
+        return total
+    
+    # Order tracking
+    order = {"item": "", "addOns": [], "drinks": []}
+    
+    # Extract item name from path
+    item_name = item_path.split("/")[-1].replace(".png", "")
+    order["item"] = item_name
+    
+    def update_order_details():
+        """Update the order details and cost display (no dish line)."""
+        addons_text = ', '.join(order['addOns']) if order['addOns'] else "NONE"
+        drinks_text = ', '.join(order['drinks']) if order['drinks'] else "NONE"
+        total = calculate_total_cost()
+        
+        details_text = f"ADD ONS:  {addons_text}\nDRINKS:  {drinks_text}\nTOTAL COST:  ₱{total}"
+        
+        # Update label if it exists
+        try:
+            orderDetailsLabel.config(text=details_text)
+        except:
+            pass
+    
+    def toggle_addon(addon_name, addon_index):
+        """Toggle add-on selection."""
+        if addon_name in order["addOns"]:
+            order["addOns"].remove(addon_name)
+        else:
+            order["addOns"].append(addon_name)
+        update_order_details()
+    
+    def toggle_drink(drink_name, drink_index):
+        """Toggle drink selection."""
+        if drink_name in order["drinks"]:
+            order["drinks"].remove(drink_name)
+        else:
+            order["drinks"].append(drink_name)
+        update_order_details()
 
     def goBack():
         makeChoicePage.pack_forget()  # hide current page
@@ -55,11 +110,66 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
     AddOnBgYellowLabel = Label(makeChoicePage, image=AddOnBgYellow, bg=redPalette)
     AddOnBgYellowLabel.place(relx=0.5, rely=0.554, anchor='center')
 
+    # Display add-ons horizontally
+    addOnStartX = 0.235
+    addOnSpacing = 0.26
+    # Use names that match MakeChoiceLists.item_prices keys
+    addOnNames = ["EGG", "NOODLE", "SEAWEEDS"]
+    for i, img_path in enumerate(addOnListImg):
+        try:
+            # Load and resize image
+            img = Image.open(img_path)
+            img = img.resize((int(219/1.8), int(264/1.8)), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            addOnImageRefs.append(photo)
+            
+            # Create image button with toggle function
+            addon_name = addOnNames[i]
+            img_button = ctk.CTkButton(makeChoicePage, image=photo, text="", 
+                                       fg_color="#CDAE00", bg_color="#CDAE00",
+                                       width=80, height=96,
+                                       command=lambda idx=i, name=addon_name: toggle_addon(name, idx))
+            img_button.place(relx=addOnStartX + (i * addOnSpacing), rely=0.580, anchor='center')
+        except FileNotFoundError:
+            pass
+
     DrinksBgYellowImg = Image.open('reso/FinalReso/MakeChoiceBG.png')
     reBgYellowImg = DrinksBgYellowImg.resize((455,212))
     DrinksBgYellow = ImageTk.PhotoImage(reBgYellowImg)
     DrinksBgYellowLabel = Label(makeChoicePage, image=DrinksBgYellow, bg=redPalette)
     DrinksBgYellowLabel.place(relx=0.5, rely=0.783, anchor='center')
+
+    # Display drinks horizontally
+    drinkStartX = 0.235
+    drinkSpacing = 0.26
+    # Use names that match MakeChoiceLists.item_prices keys
+    drinkNames = ["COCA COLA", "FANTA", "PEPSI"]
+    for i, img_path in enumerate(drinksListImg):
+        try:
+            # Load and resize image
+            img = Image.open(img_path)
+            img = img.resize((int(219/1.8), int(264/1.8)), Image.LANCZOS)
+            photo = ImageTk.PhotoImage(img)
+            drinksImageRefs.append(photo)
+            
+            # Create image button with toggle function
+            drink_name = drinkNames[i]
+            img_button = ctk.CTkButton(makeChoicePage, image=photo, text="", 
+                                       fg_color="#CDAE00", bg_color="#CDAE00",
+                                       width=80, height=96,
+                                       command=lambda idx=i, name=drink_name: toggle_drink(name, idx))
+            img_button.place(relx=drinkStartX + (i * drinkSpacing), rely=0.809, anchor='center')
+        except FileNotFoundError:
+            pass
+
+    # Order details display on first yellow background
+    orderDetailsLabel = Label(makeChoicePage, text="", 
+                              font=("Baloo Tammudu", 11), bg="#CDAE00", fg=redPalette, 
+                              justify="left")
+    orderDetailsLabel.place(relx=0.1, rely=0.353, anchor='w')
+    
+    # Initialize with full details including 'none' for empty items
+    update_order_details()
 
     label1 = usingOurFont('ORDER DETAILS', 230, 28, whitePalette)
     # Create label with the text image
