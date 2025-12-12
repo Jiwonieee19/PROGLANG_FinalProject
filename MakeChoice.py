@@ -18,9 +18,23 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
 
     global makeChoiceTopRightLogo, BgYellow, AddOnBgYellow, DrinksBgYellow, choiceText, label1, label2, label3, selectedItemPhoto
     global addOnImageRefs, drinksImageRefs, orderDetailsLabel
+    global addOnPhotosNormal, addOnPhotosSelected, addOnButtons
+    global drinkPhotosNormal, drinkPhotosSelected, drinkButtons
 
     addOnImageRefs = []
     drinksImageRefs = []
+    addOnPhotosNormal, addOnPhotosSelected, addOnButtons = [], [], []
+    drinkPhotosNormal, drinkPhotosSelected, drinkButtons = [], [], []
+
+    def _hex_to_rgb(hex_color):
+        hex_color = hex_color.lstrip('#')
+        return tuple(int(hex_color[i:i+2], 16) for i in (0, 2, 4))
+
+    def _darken_photo(img, overlay_hex="#730C03", alpha=120):
+        rgb = _hex_to_rgb(overlay_hex)
+        overlay = Image.new('RGBA', img.size, (*rgb, alpha))
+        base = img.convert('RGBA')
+        return Image.alpha_composite(base, overlay)
     
     def calculate_total_cost():
         """Calculate total cost from dish, add-ons, and drinks."""
@@ -41,6 +55,7 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
     # Extract item name from path
     item_name = item_path.split("/")[-1].replace(".png", "")
     order["item"] = item_name
+    selected_drink_index = None
     
     def update_order_details():
         """Update the order details and cost display (no dish line)."""
@@ -48,7 +63,7 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
         drinks_text = ', '.join(order['drinks']) if order['drinks'] else "NONE"
         total = calculate_total_cost()
         
-        details_text = f"ADD ONS:  {addons_text}\nDRINKS:  {drinks_text}\nTOTAL COST:  ₱{total}"
+        details_text = f"ADD ONS:  {addons_text}\nDRINKS:  {drinks_text}\nTOTAL COST:  {total}.00 PHP"
         
         # Update label if it exists
         try:
@@ -60,16 +75,40 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
         """Toggle add-on selection."""
         if addon_name in order["addOns"]:
             order["addOns"].remove(addon_name)
+            try:
+                addOnButtons[addon_index].configure(image=addOnPhotosNormal[addon_index])
+            except Exception:
+                pass
         else:
             order["addOns"].append(addon_name)
+            try:
+                addOnButtons[addon_index].configure(image=addOnPhotosSelected[addon_index])
+            except Exception:
+                pass
         update_order_details()
     
     def toggle_drink(drink_name, drink_index):
         """Toggle drink selection."""
-        if drink_name in order["drinks"]:
-            order["drinks"].remove(drink_name)
-        else:
-            order["drinks"].append(drink_name)
+        nonlocal selected_drink_index
+        # If clicking the currently selected drink, deselect it
+        if selected_drink_index == drink_index and drink_name in order["drinks"]:
+            order["drinks"].clear()
+            drinkButtons[drink_index].configure(image=drinkPhotosNormal[drink_index])
+            selected_drink_index = None
+            update_order_details()
+            return
+
+        # Deselect previously selected drink if any
+        if selected_drink_index is not None:
+            prev_idx = selected_drink_index
+            # Reset image and clear order drinks
+            drinkButtons[prev_idx].configure(image=drinkPhotosNormal[prev_idx])
+            order["drinks"].clear()
+
+        # Select the new drink
+        order["drinks"].append(drink_name)
+        drinkButtons[drink_index].configure(image=drinkPhotosSelected[drink_index])
+        selected_drink_index = drink_index
         update_order_details()
 
     def goBack():
@@ -120,16 +159,20 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
             # Load and resize image
             img = Image.open(img_path)
             img = img.resize((int(219/1.8), int(264/1.8)), Image.LANCZOS)
-            photo = ImageTk.PhotoImage(img)
-            addOnImageRefs.append(photo)
+            photo_normal = ImageTk.PhotoImage(img)
+            dark_img = _darken_photo(img, redPalette, 120)
+            photo_selected = ImageTk.PhotoImage(dark_img)
+            addOnPhotosNormal.append(photo_normal)
+            addOnPhotosSelected.append(photo_selected)
             
             # Create image button with toggle function
             addon_name = addOnNames[i]
-            img_button = ctk.CTkButton(makeChoicePage, image=photo, text="", 
+            img_button = ctk.CTkButton(makeChoicePage, image=photo_normal, text="", 
                                        fg_color="#CDAE00", bg_color="#CDAE00",
-                                       width=80, height=96,
+                                       width=80, height=96, corner_radius=10,
                                        command=lambda idx=i, name=addon_name: toggle_addon(name, idx))
             img_button.place(relx=addOnStartX + (i * addOnSpacing), rely=0.580, anchor='center')
+            addOnButtons.append(img_button)
         except FileNotFoundError:
             pass
 
@@ -149,16 +192,20 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
             # Load and resize image
             img = Image.open(img_path)
             img = img.resize((int(219/1.8), int(264/1.8)), Image.LANCZOS)
-            photo = ImageTk.PhotoImage(img)
-            drinksImageRefs.append(photo)
+            photo_normal = ImageTk.PhotoImage(img)
+            dark_img = _darken_photo(img, redPalette, 120)
+            photo_selected = ImageTk.PhotoImage(dark_img)
+            drinkPhotosNormal.append(photo_normal)
+            drinkPhotosSelected.append(photo_selected)
             
             # Create image button with toggle function
             drink_name = drinkNames[i]
-            img_button = ctk.CTkButton(makeChoicePage, image=photo, text="", 
+            img_button = ctk.CTkButton(makeChoicePage, image=photo_normal, text="", 
                                        fg_color="#CDAE00", bg_color="#CDAE00",
-                                       width=80, height=96,
+                                       width=80, height=96, corner_radius=10,
                                        command=lambda idx=i, name=drink_name: toggle_drink(name, idx))
             img_button.place(relx=drinkStartX + (i * drinkSpacing), rely=0.809, anchor='center')
+            drinkButtons.append(img_button)
         except FileNotFoundError:
             pass
 
