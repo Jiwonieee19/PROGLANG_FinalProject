@@ -21,4 +21,20 @@ def configure_scrollbar_style(redPalette, whitePalette):
         background=[("active", redPalette)],
         arrowcolor=[("active", whitePalette)],
     )
+    
+    # Vertical scrollbar style
+    style.configure(
+        "Custom.Vertical.TScrollbar",
+        troughcolor=redPalette,
+        background=redPalette,
+        darkcolor=redPalette,
+        lightcolor=redPalette,
+        bordercolor=redPalette,
+        arrowcolor=whitePalette,
+    )
+    style.map(
+        "Custom.Vertical.TScrollbar",
+        background=[("active", redPalette)],
+        arrowcolor=[("active", whitePalette)],
+    )
     return style

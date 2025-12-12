@@ -2,8 +2,11 @@ from tkinter import *
 from PIL import Image, ImageTk
 import customtkinter as ctk
 from DynamicFont import *
+import tkinter.ttk as ttk
+from ScrollbarStyle import configure_scrollbar_style
 
 def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa e open, unsa e next sa button)
+    from Menu import cart_items  # Import cart_items from Menu
 
     menuPage.pack_forget()
     reviewOrderPage.pack(fill="both", expand=True)
@@ -14,7 +17,13 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     whitePalette = "#FFFFFF"
     greenButton = "#167303"
 
-    global reviewTopRightLogo, ReviewBg, reviewText, BgYellow
+    # Configure scrollbar style
+    configure_scrollbar_style(redPalette, whitePalette)
+
+    global reviewTopRightLogo, ReviewBg, reviewText, BgYellow, order_image_refs
+
+    # Keep image references
+    order_image_refs = []
 
     def goBack():
         reviewOrderPage.pack_forget()
@@ -36,14 +45,119 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     labelChoice = Label(reviewOrderPage, image=reviewText, bg=redPalette)
     labelChoice.place(relx=0.5, rely=0.161, anchor='center')
 
+    # Create scrollable frame for orders
+    canvas = Canvas(ReviewBg, bg=redPalette, highlightthickness=0, width=455, height=620)
+    canvas.place(relx=0.5, rely=0.57, anchor='center')
 
+    scrollbar = ttk.Scrollbar(ReviewBg, orient="vertical", command=canvas.yview, style="Custom.Vertical.TScrollbar")
+    scrollbar.place(relx=0.96, rely=0.57, anchor='center', height=620)
+
+    scrollable_frame = Frame(canvas, bg=redPalette)
+    scrollable_frame.bind(
+        "<Configure>",
+        lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+    )
+
+    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    # Display each order with header if cart has items
+    if cart_items:
+        for idx, order in enumerate(cart_items, start=1):
+            # Normalize legacy strings into dict entries
+            if isinstance(order, str):
+                order = {"dish": order, "addOns": [], "drinks": []}
+
+            # Order header
+            orderHeaderText = usingOurFont(f'ORDER {idx}', 200, 28, whitePalette)
+            headerLabel = Label(scrollable_frame, image=orderHeaderText, bg=redPalette)
+            headerLabel.image = orderHeaderText  # Keep reference
+            headerLabel.pack(anchor='w', pady=(3, 5))
+
+            # Count total items to calculate height
+            total_items = 0
+            if order.get("dish"):
+                total_items += 1
+            if order.get("addOns"):
+                total_items += len(order["addOns"])
+            if order.get("drinks"):
+                total_items += len(order["drinks"])
+            
+            # Calculate rows needed (3 items per row)
+            rows_needed = (total_items + 2) // 3  # ceiling division
+            frame_height = max(212, rows_needed * 162)  # 162 = image height (132) + padding (30)
+
+            # Order frame background
+            orderFrame = ctk.CTkFrame(scrollable_frame, width=435, height=frame_height, corner_radius=10, fg_color=yellowPalette)
+            orderFrame.pack(pady=(0, 15))
+            orderFrame.pack_propagate(False)
+
+            # Create inner frame for all images with wrapping
+            contentFrame = Frame(orderFrame, bg=yellowPalette)
+            contentFrame.pack(anchor='nw', padx=10, pady=10)
+
+            # Collect all images to display
+            all_images = []
+            
+            # Dish image
+            if order.get("dish"):
+                try:
+                    dishImg = Image.open(order["dish"])
+                    dishImg = dishImg.resize((110, 132), Image.LANCZOS)
+                    dishPhoto = ImageTk.PhotoImage(dishImg)
+                    order_image_refs.append(dishPhoto)
+                    all_images.append(dishPhoto)
+                except:
+                    pass
+
+            # Add-ons images (same size as dish)
+            if order.get("addOns") and len(order["addOns"]) > 0:
+                for addOn in order["addOns"]:
+                    try:
+                        addOnImg = Image.open(addOn)
+                        addOnImg = addOnImg.resize((110, 132), Image.LANCZOS)
+                        addOnPhoto = ImageTk.PhotoImage(addOnImg)
+                        order_image_refs.append(addOnPhoto)
+                        all_images.append(addOnPhoto)
+                    except:
+                        pass
+
+            # Drinks images (same size as dish)
+            if order.get("drinks") and len(order["drinks"]) > 0:
+                for drink in order["drinks"]:
+                    try:
+                        drinkImg = Image.open(drink)
+                        drinkImg = drinkImg.resize((110, 132), Image.LANCZOS)
+                        drinkPhoto = ImageTk.PhotoImage(drinkImg)
+                        order_image_refs.append(drinkPhoto)
+                        all_images.append(drinkPhoto)
+                    except:
+                        pass
+
+            # Display images in rows of 3
+            current_row = Frame(contentFrame, bg=yellowPalette)
+            current_row.pack(anchor='w')
+            
+            for i, photo in enumerate(all_images):
+                if i > 0 and i % 3 == 0:
+                    # Create new row after every 3 images
+                    current_row = Frame(contentFrame, bg=yellowPalette)
+                    current_row.pack(anchor='w')
+                
+                # Frame with red background and border radius for each image
+                imgFrame = ctk.CTkFrame(current_row, fg_color=redPalette, corner_radius=5, width=120, height=142)
+                imgFrame.pack(side=LEFT, padx=5, pady=5)
+                imgFrame.pack_propagate(False)
+                
+                imgLabel = Label(imgFrame, image=photo, bg=redPalette)
+                imgLabel.pack(expand=True)
 
     # The Frame for Every order
-    BgYellowImg = Image.open('reso/FinalReso/MakeChoiceBG.png')
-    reBgYellowImg = BgYellowImg.resize((455,212))
-    BgYellow = ImageTk.PhotoImage(reBgYellowImg)
-    BgYellowLabel = Label(reviewOrderPage, image=BgYellow, bg=redPalette)
-    BgYellowLabel.place(relx=0.5, rely=0.554, anchor='center')
+    # BgYellowImg = Image.open('reso/FinalReso/MakeChoiceBG.png')
+    # reBgYellowImg = BgYellowImg.resize((455,212))
+    # BgYellow = ImageTk.PhotoImage(reBgYellowImg)
+    # BgYellowLabel = Label(reviewOrderPage, image=BgYellow, bg=redPalette)
+    # BgYellowLabel.place(relx=0.5, rely=0.554, anchor='center')
 
 
 
