@@ -20,7 +20,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     # Configure scrollbar style
     configure_scrollbar_style(redPalette, whitePalette)
 
-    global reviewTopRightLogo, ReviewBg, reviewText, BgYellow, order_image_refs
+    global reviewTopRightLogo, ReviewBg, reviewText, order_image_refs
 
     # Keep image references
     order_image_refs = []
@@ -28,6 +28,25 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     def goBack():
         reviewOrderPage.pack_forget()
         menuPage.pack(fill="both", expand=True)
+
+    def checkout():
+        try:
+            # clear cart and refresh strip
+            from Menu import cart_items as _ci, menu_cart_frame as _cart_frame, menu_red_palette as _red, cart_image_refs as _imgrefs
+            from CartRender import render_cart
+            _ci.clear()
+            if _cart_frame is not None and _red is not None:
+                render_cart(_cart_frame, _ci, _imgrefs, _red)
+        except Exception:
+            pass
+        # navigate to last page via LastPage(reviewOrderPage, lastPage)
+        try:
+            from lastPage import LastPage
+            LastPage(reviewOrderPage, lastPage)
+        except Exception:
+            # fallback to simple pack if import fails
+            reviewOrderPage.pack_forget()
+            lastPage.pack(fill="both", expand=True)
 
     # Real Logo top right
     img = Image.open('reso/realLogo.png')
@@ -183,14 +202,6 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
                 imgLabel = Label(imgFrame, image=photo, bg=redPalette)
                 imgLabel.pack(expand=True)
 
-    # The Frame for Every order
-    # BgYellowImg = Image.open('reso/FinalReso/MakeChoiceBG.png')
-    # reBgYellowImg = BgYellowImg.resize((455,212))
-    # BgYellow = ImageTk.PhotoImage(reBgYellowImg)
-    # BgYellowLabel = Label(reviewOrderPage, image=BgYellow, bg=redPalette)
-    # BgYellowLabel.place(relx=0.5, rely=0.554, anchor='center')
-
-
 
     backPhoto = usingOurFontWithIcon('BACK', 58, 23, whitePalette, iconPath='reso/FinalReso/ICON/return.png', iconSize=(25, 25))
     # back button
@@ -198,6 +209,13 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     backButton.place(relx=0.27, rely=0.95, anchor='center')
 
     checkoutPhoto = usingOurFontWithIcon('CHECKOUT', 114, 23, whitePalette, iconPath='reso/FinalReso/ICON/checkout.png', iconSize=(25, 25))
-    # checkout button
-    checkoutButton = ctk.CTkButton(reviewOrderPage, width=225, height=50, image=checkoutPhoto, text="", corner_radius=10, fg_color=greenButton)
+    # checkout button (disabled and black if cart is empty)
+    if cart_items and len(cart_items) > 0:
+        checkoutButton = ctk.CTkButton(reviewOrderPage, width=225, height=50, image=checkoutPhoto, text="", corner_radius=10, fg_color=greenButton, command=checkout)
+    else:
+        checkoutButton = ctk.CTkButton(reviewOrderPage, width=225, height=50, image=checkoutPhoto, text="", corner_radius=10, fg_color="#000000")
+        try:
+            checkoutButton.configure(state="disabled")
+        except Exception:
+            pass
     checkoutButton.place(relx=0.732, rely=0.95, anchor='center')
