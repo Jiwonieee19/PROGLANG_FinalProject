@@ -154,6 +154,7 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
     addOnSpacing = 0.26
     # Use names that match MakeChoiceLists.item_prices keys
     addOnNames = ["EGG", "NOODLE", "SEAWEEDS"]
+    addOnNameToPath = {name: path for name, path in zip(addOnNames, addOnListImg)}
     for i, img_path in enumerate(addOnListImg):
         try:
             # Load and resize image
@@ -187,6 +188,7 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
     drinkSpacing = 0.26
     # Use names that match MakeChoiceLists.item_prices keys
     drinkNames = ["COCA COLA", "FANTA", "PEPSI"]
+    drinkNameToPath = {name: path for name, path in zip(drinkNames, drinksListImg)}
     for i, img_path in enumerate(drinksListImg):
         try:
             # Load and resize image
@@ -246,10 +248,43 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
 
     # Cancel button
     makeChoiceCancelPhoto = usingOurFontWithIcon('CANCEL', 92, 23, whitePalette, iconPath='reso/FinalReso/ICON/cancel.png', iconSize=(25, 25))
-    makeChoiceCancelButton = ctk.CTkButton(makeChoicePage, width=225, height=50, image=makeChoiceCancelPhoto, text="", corner_radius=10, fg_color=redPalette)
+    # cancel acts like return
+    makeChoiceCancelButton = ctk.CTkButton(makeChoicePage, width=225, height=50, image=makeChoiceCancelPhoto, text="", corner_radius=10, fg_color=redPalette, command=goBack)
     makeChoiceCancelButton.place(relx=0.27, rely=0.95, anchor='center')
 
     # Add button
     makeChoiceAddPhoto = usingOurFontWithIcon('ADD ORDER', 120, 23, whitePalette, iconPath='reso/FinalReso/ICON/addtoorder.png', iconSize=(25, 25))
-    makeChoiceAddButton = ctk.CTkButton(makeChoicePage, width=225, height=50, image=makeChoiceAddPhoto, text="", corner_radius=10, fg_color=greenButton)
+    # add order: confirm selections, add to cart, and return to menu
+    def _confirm_and_add_to_cart():
+        """Send selected dish/add-ons/drink to cart and return to menu."""
+        try:
+            from Menu import append_cart_item
+
+            # Resolve add-on image paths for selected names
+            selected_addon_paths = []
+            for name in order["addOns"]:
+                path = addOnNameToPath.get(name)
+                if path:
+                    selected_addon_paths.append(path)
+
+            # Resolve drink image path (single selection list)
+            selected_drink_paths = []
+            for name in order["drinks"]:
+                path = drinkNameToPath.get(name)
+                if path:
+                    selected_drink_paths.append(path)
+
+            order_entry = {
+                "dish": item_path,
+                "addOns": selected_addon_paths,
+                "drinks": selected_drink_paths,
+            }
+
+            append_cart_item(order_entry)
+        except Exception as e:
+            print(f"Failed to append cart item: {e}")
+        # Navigate back to menu
+        goBack()
+
+    makeChoiceAddButton = ctk.CTkButton(makeChoicePage, width=225, height=50, image=makeChoiceAddPhoto, text="", corner_radius=10, fg_color=greenButton, command=_confirm_and_add_to_cart)
     makeChoiceAddButton.place(relx=0.732, rely=0.95, anchor='center')

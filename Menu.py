@@ -12,6 +12,23 @@ from MakeChoice import MakeChoicePage
 # Global cart storage
 cart_items = []
 cart_image_refs = []
+# Exposed references for external updates
+menu_cart_frame = None
+menu_red_palette = None
+
+def append_cart_item(order_entry):
+    """Append an order to cart and refresh the cart strip.
+
+    Accepts either a dict with keys dish/addOns/drinks or a legacy image path string.
+    """
+    global cart_items, menu_cart_frame, menu_red_palette, cart_image_refs
+    if isinstance(order_entry, dict):
+        cart_items.append(order_entry)
+    elif order_entry:
+        cart_items.append({"dish": order_entry, "addOns": [], "drinks": []})
+    # Refresh if frame/palette are ready
+    if menu_cart_frame is not None and menu_red_palette is not None:
+        render_cart(menu_cart_frame, cart_items, cart_image_refs, menu_red_palette)
 
 def MenuPage(orderTypePage, menuPage, makeChoicePage):
     orderTypePage.pack_forget()
@@ -97,6 +114,10 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage):
 
     # Initial render of empty cart
     render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
+    # store for external refreshes
+    global menu_cart_frame, menu_red_palette
+    menu_cart_frame = cart_frame
+    menu_red_palette = redPalette
 
     # Store references to prevent garbage collection
     image_references = []
