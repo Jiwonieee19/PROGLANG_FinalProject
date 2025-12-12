@@ -2,7 +2,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from Menu import MenuPage
 
-def OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage): #(unsa e close, unsa e open, unsa e next sa button)
+def OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage): #(unsa e close, unsa e open, unsa e next sa button)
 
     landingPage.pack_forget()
     orderTypePage.pack(fill="both", expand=True)
@@ -40,11 +40,11 @@ def OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage): #(unsa 
     buttonFrame.place(relx=0.5, rely=0.5, anchor='center')
 
     # First button
-    startButton = Button(buttonFrame, image=DineIn, bg=yellowPalette, borderwidth=0, highlightthickness=0, command=lambda: MenuPage(orderTypePage, menuPage, makeChoicePage))
+    startButton = Button(buttonFrame, image=DineIn, bg=yellowPalette, borderwidth=0, highlightthickness=0, command=lambda: MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage))
     startButton.pack(side=LEFT, padx=20)   # spacing between buttons
 
     # Second button
-    optionButton = Button(buttonFrame, image=TakeOut, bg=yellowPalette, borderwidth=0, highlightthickness=0, command=lambda: MenuPage(orderTypePage, menuPage, makeChoicePage))
+    optionButton = Button(buttonFrame, image=TakeOut, bg=yellowPalette, borderwidth=0, highlightthickness=0, command=lambda: MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage))
     optionButton.pack(side=LEFT, padx=20)
 
 

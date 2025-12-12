@@ -9,6 +9,7 @@ from ScrollbarStyle import configure_scrollbar_style
 from MenuLists import ramenListImg, donburiListImg, otherListImg
 from MakeChoice import MakeChoicePage
 from MakeChoiceNoAddOns import MakeChoiceNoAddOnsPage
+from ReviewOrder import ReviewOrderPage
 
 # Global cart storage
 cart_items = []
@@ -33,7 +34,7 @@ def append_cart_item(order_entry):
     if menu_cart_frame is not None and menu_red_palette is not None:
         render_cart(menu_cart_frame, cart_items, cart_image_refs, menu_red_palette)
 
-def MenuPage(orderTypePage, menuPage, makeChoicePage):
+def MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage):
     orderTypePage.pack_forget()
     menuPage.pack(fill="both", expand=True)
     menuPage.config(background="#CDAE00")
@@ -228,11 +229,11 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage):
 
     viewPhoto = usingOurFontWithIcon('VIEW', 58, 23, whitePalette, iconPath='reso/FinalReso/ICON/view.png', iconSize=(25, 25))
     # view button
-    viewButton = ctk.CTkButton(menuPage, width=150, height=50, image=viewPhoto, text="", corner_radius=10, fg_color=redPalette)
+    viewButton = ctk.CTkButton(menuPage, width=150, height=50, image=viewPhoto, text="", corner_radius=10, fg_color=redPalette, command=lambda: ReviewOrderPage(menuPage, reviewOrderPage, lastPage))
     viewButton.place(relx=0.485, rely=0.95, anchor='center')
 
     proceedPhoto = usingOurFontWithIcon('PROCEED', 106, 23, whitePalette, iconPath='reso/FinalReso/ICON/proceed.png', iconSize=(25, 25))
     # proceed button
-    proceedButton = ctk.CTkButton(menuPage, width=150, height=50, image=proceedPhoto, text="", corner_radius=10, fg_color=greenButton)
+    proceedButton = ctk.CTkButton(menuPage, width=150, height=50, image=proceedPhoto, text="", corner_radius=10, fg_color=greenButton, command=lambda: ReviewOrderPage(menuPage, reviewOrderPage, lastPage))
     proceedButton.place(relx=0.785, rely=0.95, anchor='center')
 
