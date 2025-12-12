@@ -63,16 +63,47 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
 
     # Display each order with header if cart has items
     if cart_items:
+        # helper to delete specific order and refresh
+        def delete_order(index_zero_based):
+            try:
+                # remove from cart and refresh both cart strip and review page
+                from Menu import cart_items as _ci, menu_cart_frame as _cart_frame, menu_red_palette as _red, cart_image_refs as _imgrefs
+                from CartRender import render_cart
+                if 0 <= index_zero_based < len(_ci):
+                    del _ci[index_zero_based]
+                    # refresh cart strip if available
+                    if _cart_frame is not None and _red is not None:
+                        render_cart(_cart_frame, _ci, _imgrefs, _red)
+                    # refresh review page
+                    reviewOrderPage.pack_forget()
+                    ReviewOrderPage(menuPage, reviewOrderPage, lastPage)
+            except Exception:
+                pass
+
         for idx, order in enumerate(cart_items, start=1):
             # Normalize legacy strings into dict entries
             if isinstance(order, str):
                 order = {"dish": order, "addOns": [], "drinks": []}
 
-            # Order header
+            # Order header row (label + delete button aligned to order frame edge)
+            headerRow = Frame(scrollable_frame, bg=redPalette)
+            headerRow.pack(fill='x', anchor='w', pady=(3, 5), padx=0)
+
             orderHeaderText = usingOurFont(f'ORDER {idx}', 200, 28, whitePalette)
-            headerLabel = Label(scrollable_frame, image=orderHeaderText, bg=redPalette)
+            headerLabel = Label(headerRow, image=orderHeaderText, bg=redPalette)
             headerLabel.image = orderHeaderText  # Keep reference
-            headerLabel.pack(anchor='w', pady=(3, 5))
+            headerLabel.pack(side=LEFT)
+
+            # delete icon button on the right edge
+            try:
+                delImg = Image.open('reso/FinalReso/ICON/delete.png')
+                delImg = delImg.resize((28, 28), Image.LANCZOS)
+                delPhoto = ImageTk.PhotoImage(delImg)
+                order_image_refs.append(delPhoto)
+                delBtn = ctk.CTkButton(headerRow, width=32, height=32, image=delPhoto, text="", corner_radius=6, fg_color=redPalette, hover_color="#8B1A10", command=lambda i=idx-1: delete_order(i))
+                delBtn.pack(side=RIGHT, padx=(0, 8))
+            except Exception:
+                pass
 
             # Count total items to calculate height
             total_items = 0
