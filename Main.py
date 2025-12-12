@@ -12,11 +12,12 @@ introPage = Frame(root)
 landingPage = Frame(root)
 orderPage = Frame(root)
 orderTypePage = Frame(root)
+makeChoicePage = Frame(root)
 
 menuPage = Frame(root)
-menuRamenPage = Frame(root)
-menuDonburiPage = Frame(root)
-menuOthersPage = Frame(root)
+# menuRamenPage = Frame(root)
+# menuDonburiPage = Frame(root)
+# menuOthersPage = Frame(root)
 
 yellowPalette = "#CDAE00"
 redPalette = "#730C03"
@@ -63,7 +64,7 @@ landingLogo = ImageTk.PhotoImage(reImg)
 logoLabel = Label(landingPage, image=landingLogo, bg=yellowPalette)
 logoLabel.place(relx=0.02, rely=0, anchor='nw')
 
-btnStart = Button(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30), fg=whitePalette, bg=redPalette, borderwidth=0, highlightthickness=0, command=lambda: OrderTypePage(landingPage, orderTypePage, menuPage))
+btnStart = Button(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30), fg=whitePalette, bg=redPalette, borderwidth=0, highlightthickness=0, command=lambda: OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage))
 # btnStart = ctk.CTkButton(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30),  width=492, height=141, fg_color=whitePalette, bg_color=redPalette, command=lambda: OrderTypePage(landingPage, orderTypePage, orderRamenPage))
 btnStart.place(relx=0.5, rely=0.895, width=500, height=141, anchor='center')
 

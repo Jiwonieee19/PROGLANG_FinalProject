@@ -7,12 +7,13 @@ from OrderType import *
 from CartRender import render_cart
 from ScrollbarStyle import configure_scrollbar_style
 from MenuLists import ramenListImg, donburiListImg, otherListImg
+from MakeChoice import MakeChoicePage
 
 # Global cart storage
 cart_items = []
 cart_image_refs = []
 
-def MenuPage(orderTypePage, menuPage):
+def MenuPage(orderTypePage, menuPage, makeChoicePage):
     orderTypePage.pack_forget()
     menuPage.pack(fill="both", expand=True)
     menuPage.config(background="#CDAE00")
@@ -25,8 +26,12 @@ def MenuPage(orderTypePage, menuPage):
     # Configure scrollbar style
     configure_scrollbar_style(redPalette, whitePalette)
 
-    global topRightLogo, ramenText, myorderText, RAMENPhoto, DONPhoto
+    global topRightLogo, ramenText, myorderText, RAMENPhoto, DONPhoto, labelRamen
     global cart_items, cart_image_refs
+
+    def go_to_make_choice(img_path):
+        """Navigate to MakeChoicePage with selected item."""
+        MakeChoicePage(menuPage, makeChoicePage, img_path)
 
     def add_to_cart(img_path, cart_frame):
         cart_items.append(img_path)
@@ -99,6 +104,17 @@ def MenuPage(orderTypePage, menuPage):
     def display_items(item_list, section_name):
         """Clear and display items from the selected section."""
         nonlocal image_references
+
+        # Update section header text/image
+        global ramenText, labelRamen
+        ramenText = usingOurFont(section_name, 315, 38, whitePalette)
+        # Reconfigure header label image and keep reference to avoid GC
+        try:
+            labelRamen.config(image=ramenText)
+            labelRamen.image = ramenText
+            labelRamen.place(relx=0.38, rely=0.165, anchor='center')
+        except Exception:
+            pass
         
         # Clear previous items
         for widget in image_frame.winfo_children():
@@ -121,7 +137,7 @@ def MenuPage(orderTypePage, menuPage):
 
                 # Create image button without text
                 img_button = ctk.CTkButton(row_frame, image=photo, text="", fg_color=redPalette, bg_color=redPalette,
-                                           command=lambda p=img_path: add_to_cart(p, cart_frame))
+                                           command=lambda p=img_path: go_to_make_choice(p))
                 img_button.pack(side="left", padx=5, pady=5)
             except FileNotFoundError:
                 pass  # Skip missing images
