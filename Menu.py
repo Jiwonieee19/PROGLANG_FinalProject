@@ -8,6 +8,7 @@ from CartRender import render_cart
 from ScrollbarStyle import configure_scrollbar_style
 from MenuLists import ramenListImg, donburiListImg, otherListImg
 from MakeChoice import MakeChoicePage
+from MakeChoiceNoAddOns import MakeChoiceNoAddOnsPage
 
 # Global cart storage
 cart_items = []
@@ -15,6 +16,8 @@ cart_image_refs = []
 # Exposed references for external updates
 menu_cart_frame = None
 menu_red_palette = None
+# Track current section for routing
+current_section = "RAMEN SECTION"
 
 def append_cart_item(order_entry):
     """Append an order to cart and refresh the cart strip.
@@ -44,11 +47,14 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage):
     configure_scrollbar_style(redPalette, whitePalette)
 
     global topRightLogo, ramenText, myorderText, RAMENPhoto, DONPhoto, labelRamen
-    global cart_items, cart_image_refs
+    global cart_items, cart_image_refs, current_section
 
     def go_to_make_choice(img_path):
-        """Navigate to MakeChoicePage with selected item."""
-        MakeChoicePage(menuPage, makeChoicePage, img_path)
+        """Navigate to MakeChoice or MakeChoiceNoAddOns based on current section."""
+        if current_section == "RAMEN SECTION":
+            MakeChoicePage(menuPage, makeChoicePage, img_path)
+        else:
+            MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, img_path)
 
     def add_to_cart(img_path, cart_frame):
         cart_items.append(img_path)
@@ -94,7 +100,7 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage):
     image_frame.pack(fill="both", expand=True, padx=10, pady=10)
 
     # Cart strip with bounded height and horizontal scroll
-    frame2Bg = ctk.CTkFrame(menuPage, width=465, height=90, corner_radius=10, fg_color=redPalette)
+    frame2Bg = ctk.CTkFrame(menuPage, width=465, height=108, corner_radius=10, fg_color=redPalette)
     frame2Bg.place(relx=0.5, rely=0.850, anchor='center')
     frame2Bg.pack_propagate(False)
 
@@ -125,6 +131,8 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage):
     def display_items(item_list, section_name):
         """Clear and display items from the selected section."""
         nonlocal image_references
+        global current_section
+        current_section = section_name
 
         # Update section header text/image
         global ramenText, labelRamen

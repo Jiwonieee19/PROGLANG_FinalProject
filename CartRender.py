@@ -13,7 +13,7 @@ def render_cart(cart_frame, cart_items, cart_image_refs, redPalette):
     cart_image_refs.clear()
 
     dish_size = (int(110 / 1.8), int(132 / 1.8))  # main dish thumb
-    extra_size = (int(110 / 1.8), int(132 / 1.8))   # add-on/drink thumb
+    extra_size = (int(70 / 1.8), int(80 / 1.8))   # add-on/drink thumb
 
     if not cart_items:
         try:
@@ -52,23 +52,28 @@ def render_cart(cart_frame, cart_items, cart_image_refs, redPalette):
                 pass
 
         # Extras row (add-ons + drinks) placed to the right to stay within cart height
-        extras_frame = ctk.CTkFrame(row_frame, fg_color=redPalette)
-        extras_frame.pack(side="left", padx=2)
+        # Only pack if there are extras to avoid empty frame taking space
+        addons = order.get("addOns", [])
+        drinks = order.get("drinks", [])
+        
+        if addons or drinks:
+            extras_frame = ctk.CTkFrame(row_frame, fg_color=redPalette)
+            extras_frame.pack(side="left", padx=2)
 
-        def _add_thumb(path):
-            if not path:
-                return
-            try:
-                img = Image.open(path)
-                img = img.resize(extra_size, Image.LANCZOS)
-                photo = ImageTk.PhotoImage(img)
-                cart_image_refs.append(photo)
-                ctk.CTkLabel(extras_frame, image=photo, text="", fg_color=redPalette).pack(side="left", padx=2)
-            except FileNotFoundError:
-                pass
+            def _add_thumb(path):
+                if not path:
+                    return
+                try:
+                    img = Image.open(path)
+                    img = img.resize(extra_size, Image.LANCZOS)
+                    photo = ImageTk.PhotoImage(img)
+                    cart_image_refs.append(photo)
+                    ctk.CTkLabel(extras_frame, image=photo, text="", fg_color=redPalette).pack(side="left", padx=2)
+                except FileNotFoundError:
+                    pass
 
-        for addon_path in order.get("addOns", []):
-            _add_thumb(addon_path)
+            for addon_path in addons:
+                _add_thumb(addon_path)
 
-        for drink_path in order.get("drinks", []):
-            _add_thumb(drink_path)
+            for drink_path in drinks:
+                _add_thumb(drink_path)
