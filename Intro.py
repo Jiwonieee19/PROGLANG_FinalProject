@@ -27,4 +27,4 @@ def IntroPage(root, landingPage):
         introPage.destroy()
         landingPage.pack(fill="both", expand=True)
 
-    root.after(2500, showLanding)  # 3000ms = 3 seconds
+    root.after(3000, showLanding)  # 3000ms = 3 seconds

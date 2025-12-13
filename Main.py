@@ -34,7 +34,7 @@ root.resizable(False, False)
 landingPage.pack(fill="both", expand=True)
 landingPage.config(background=yellowPalette)
 
-# IntroPage(root, landingPage)
+IntroPage(root, landingPage)
 
 # Ads/Promo
 ads = ['reso/3rdAd.png', 'reso/1stAd.png', 'reso/2ndAd.png']
