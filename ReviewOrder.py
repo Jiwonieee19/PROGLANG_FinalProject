@@ -6,7 +6,7 @@ import tkinter.ttk as ttk
 from ScrollbarStyle import configure_scrollbar_style
 
 def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa e open, unsa e next sa button)
-    from Menu import cart_items  # Import cart_items from Menu
+    from Menu import cartItems  # Import cartItems from Menu
 
     menuPage.pack_forget()
     reviewOrderPage.pack(fill="both", expand=True)
@@ -20,10 +20,10 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     # Configure scrollbar style
     configure_scrollbar_style(redPalette, whitePalette)
 
-    global reviewTopRightLogo, ReviewBg, reviewText, order_image_refs
+    global reviewTopRightLogo, ReviewBg, reviewText, orderImageRefs
 
     # Keep image references
-    order_image_refs = []
+    orderImageRefs = []
 
     def goBack():
         reviewOrderPage.pack_forget()
@@ -32,7 +32,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     def checkout():
         try:
             # clear cart and refresh strip
-            from Menu import cart_items as _ci, menu_cart_frame as _cart_frame, menu_red_palette as _red, cart_image_refs as _imgrefs
+            from Menu import cartItems as _ci, menuCartFrame as _cart_frame, menuRedPalette as _red, cartImageRefs as _imgrefs
             from CartRender import render_cart
             _ci.clear()
             if _cart_frame is not None and _red is not None:
@@ -71,25 +71,25 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     scrollbar = ttk.Scrollbar(ReviewBg, orient="vertical", command=canvas.yview, style="Custom.Vertical.TScrollbar")
     scrollbar.place(relx=0.96, rely=0.57, anchor='center', height=620)
 
-    scrollable_frame = Frame(canvas, bg=redPalette)
-    scrollable_frame.bind(
+    scrollableFrame = Frame(canvas, bg=redPalette)
+    scrollableFrame.bind(
         "<Configure>",
         lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
     )
 
-    canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+    canvas.create_window((0, 0), window=scrollableFrame, anchor="nw")
     canvas.configure(yscrollcommand=scrollbar.set)
 
     # Display each order with header if cart has items
-    if cart_items:
+    if cartItems:
         # helper to delete specific order and refresh
-        def delete_order(index_zero_based):
+        def delete_order(indexZeroBased):
             try:
                 # remove from cart and refresh both cart strip and review page
-                from Menu import cart_items as _ci, menu_cart_frame as _cart_frame, menu_red_palette as _red, cart_image_refs as _imgrefs
+                from Menu import cartItems as _ci, menuCartFrame as _cart_frame, menuRedPalette as _red, cartImageRefs as _imgrefs
                 from CartRender import render_cart
-                if 0 <= index_zero_based < len(_ci):
-                    del _ci[index_zero_based]
+                if 0 <= indexZeroBased < len(_ci):
+                    del _ci[indexZeroBased]
                     # refresh cart strip if available
                     if _cart_frame is not None and _red is not None:
                         render_cart(_cart_frame, _ci, _imgrefs, _red)
@@ -99,13 +99,13 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
             except Exception:
                 pass
 
-        for idx, order in enumerate(cart_items, start=1):
+        for idx, order in enumerate(cartItems, start=1):
             # Normalize legacy strings into dict entries
             if isinstance(order, str):
                 order = {"dish": order, "addOns": [], "drinks": []}
 
             # Order header row (label + delete button aligned to order frame edge)
-            headerRow = Frame(scrollable_frame, bg=redPalette)
+            headerRow = Frame(scrollableFrame, bg=redPalette)
             headerRow.pack(fill='x', anchor='w', pady=(3, 5), padx=0)
 
             orderHeaderText = usingOurFont(f'ORDER {idx}', 200, 28, whitePalette)
@@ -118,7 +118,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
                 delImg = Image.open('reso/FinalReso/ICON/delete.png')
                 delImg = delImg.resize((28, 28), Image.LANCZOS)
                 delPhoto = ImageTk.PhotoImage(delImg)
-                order_image_refs.append(delPhoto)
+                orderImageRefs.append(delPhoto)
                 delBtn = ctk.CTkButton(headerRow, width=32, height=32, image=delPhoto, text="", corner_radius=6, fg_color=redPalette, hover_color="#8B1A10", command=lambda i=idx-1: delete_order(i))
                 delBtn.pack(side=RIGHT, padx=(0, 8))
             except Exception:
@@ -138,7 +138,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
             frame_height = max(212, rows_needed * 162)  # 162 = image height (132) + padding (30)
 
             # Order frame background
-            orderFrame = ctk.CTkFrame(scrollable_frame, width=435, height=frame_height, corner_radius=10, fg_color=yellowPalette)
+            orderFrame = ctk.CTkFrame(scrollableFrame, width=435, height=frame_height, corner_radius=10, fg_color=yellowPalette)
             orderFrame.pack(pady=(0, 15))
             orderFrame.pack_propagate(False)
 
@@ -155,7 +155,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
                     dishImg = Image.open(order["dish"])
                     dishImg = dishImg.resize((110, 132), Image.LANCZOS)
                     dishPhoto = ImageTk.PhotoImage(dishImg)
-                    order_image_refs.append(dishPhoto)
+                    orderImageRefs.append(dishPhoto)
                     all_images.append(dishPhoto)
                 except:
                     pass
@@ -167,7 +167,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
                         addOnImg = Image.open(addOn)
                         addOnImg = addOnImg.resize((110, 132), Image.LANCZOS)
                         addOnPhoto = ImageTk.PhotoImage(addOnImg)
-                        order_image_refs.append(addOnPhoto)
+                        orderImageRefs.append(addOnPhoto)
                         all_images.append(addOnPhoto)
                     except:
                         pass
@@ -179,7 +179,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
                         drinkImg = Image.open(drink)
                         drinkImg = drinkImg.resize((110, 132), Image.LANCZOS)
                         drinkPhoto = ImageTk.PhotoImage(drinkImg)
-                        order_image_refs.append(drinkPhoto)
+                        orderImageRefs.append(drinkPhoto)
                         all_images.append(drinkPhoto)
                     except:
                         pass
@@ -210,7 +210,7 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
 
     checkoutPhoto = usingOurFontWithIcon('CHECKOUT', 114, 23, whitePalette, iconPath='reso/FinalReso/ICON/checkout.png', iconSize=(25, 25))
     # checkout button (disabled and black if cart is empty)
-    if cart_items and len(cart_items) > 0:
+    if cartItems and len(cartItems) > 0:
         checkoutButton = ctk.CTkButton(reviewOrderPage, width=225, height=50, image=checkoutPhoto, text="", corner_radius=10, fg_color=greenButton, command=checkout)
     else:
         checkoutButton = ctk.CTkButton(reviewOrderPage, width=225, height=50, image=checkoutPhoto, text="", corner_radius=10, fg_color="#000000")

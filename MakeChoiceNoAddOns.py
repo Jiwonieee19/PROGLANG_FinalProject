@@ -2,8 +2,8 @@ from tkinter import *
 from PIL import Image, ImageTk
 import customtkinter as ctk
 from DynamicFont import *
-from MenuLists import ramenListImg, donburiListImg, otherListImg, item_prices as menu_prices
-from MakeChoiceLists import drinksListImg, item_prices as makechoice_prices
+from MenuLists import ramenListImg, donburiListImg, otherListImg, itemPrices as menuPrices
+from MakeChoiceLists import drinksListImg, itemPrices as makechoicePrices
 
 def MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e open, unsa e next sa button)
 
@@ -37,19 +37,19 @@ def MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, item_path): #(unsa e close,
         """Calculate total cost from dish and drinks."""
         total = 0
         # Get dish price
-        total += menu_prices.get(order["item"], 0)
+        total += menuPrices.get(order["item"], 0)
         # Get drinks price
         for drink in order["drinks"]:
-            total += makechoice_prices.get(drink, 0)
+            total += makechoicePrices.get(drink, 0)
         return total
     
     # Order tracking
     order = {"item": "", "drinks": []}
     
     # Extract item name from path
-    item_name = item_path.split("/")[-1].replace(".png", "")
-    order["item"] = item_name
-    selected_drink_index = None
+    itemName = item_path.split("/")[-1].replace(".png", "")
+    order["item"] = itemName
+    selectedDrinkIndex = None
     
     def update_order_details():
         """Update the order details and cost display (no dish line, no add-ons)."""
@@ -64,28 +64,28 @@ def MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, item_path): #(unsa e close,
         except:
             pass
     
-    def toggle_drink(drink_name, drink_index):
+    def toggle_drink(drinkName, drinkIndex):
         """Toggle drink selection."""
-        nonlocal selected_drink_index
+        nonlocal selectedDrinkIndex
         # If clicking the currently selected drink, deselect it
-        if selected_drink_index == drink_index and drink_name in order["drinks"]:
+        if selectedDrinkIndex == drinkIndex and drinkName in order["drinks"]:
             order["drinks"].clear()
-            drinkButtons[drink_index].configure(image=drinkPhotosNormal[drink_index])
-            selected_drink_index = None
+            drinkButtons[drinkIndex].configure(image=drinkPhotosNormal[drinkIndex])
+            selectedDrinkIndex = None
             update_order_details()
             return
 
         # Deselect previously selected drink if any
-        if selected_drink_index is not None:
-            prev_idx = selected_drink_index
+        if selectedDrinkIndex is not None:
+            prev_idx = selectedDrinkIndex
             # Reset image and clear order drinks
             drinkButtons[prev_idx].configure(image=drinkPhotosNormal[prev_idx])
             order["drinks"].clear()
 
         # Select the new drink
-        order["drinks"].append(drink_name)
-        drinkButtons[drink_index].configure(image=drinkPhotosSelected[drink_index])
-        selected_drink_index = drink_index
+        order["drinks"].append(drinkName)
+        drinkButtons[drinkIndex].configure(image=drinkPhotosSelected[drinkIndex])
+        selectedDrinkIndex = drinkIndex
         update_order_details()
 
     def goBack():
@@ -196,7 +196,7 @@ def MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, item_path): #(unsa e close,
     def _confirm_and_add_to_cart():
         """Send selected dish/drink to cart and return to menu."""
         try:
-            from Menu import append_cart_item
+            from Menu import appendCartItem
 
             # Resolve drink image path (single selection list)
             selected_drink_paths = []
@@ -211,7 +211,7 @@ def MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, item_path): #(unsa e close,
                 "drinks": selected_drink_paths,
             }
 
-            append_cart_item(order_entry)
+            appendCartItem(order_entry)
         except Exception as e:
             print(f"Failed to append cart item: {e}")
         # Navigate back to menu

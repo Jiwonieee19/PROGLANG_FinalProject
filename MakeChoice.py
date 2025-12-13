@@ -2,8 +2,8 @@ from tkinter import *
 from PIL import Image, ImageTk
 import customtkinter as ctk
 from DynamicFont import *
-from MenuLists import ramenListImg, donburiListImg, otherListImg, item_prices as menu_prices
-from MakeChoiceLists import addOnListImg, drinksListImg, item_prices as makechoice_prices
+from MenuLists import ramenListImg, donburiListImg, otherListImg, itemPrices as menuPrices
+from MakeChoiceLists import addOnListImg, drinksListImg, itemPrices as makechoicePrices
 
 def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e open, unsa e next sa button)
 
@@ -40,22 +40,22 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
         """Calculate total cost from dish, add-ons, and drinks."""
         total = 0
         # Get dish price
-        total += menu_prices.get(order["item"], 0)
+        total += menuPrices.get(order["item"], 0)
         # Get add-ons price
         for addon in order["addOns"]:
-            total += makechoice_prices.get(addon, 0)
+            total += makechoicePrices.get(addon, 0)
         # Get drinks price
         for drink in order["drinks"]:
-            total += makechoice_prices.get(drink, 0)
+            total += makechoicePrices.get(drink, 0)
         return total
     
     # Order tracking
     order = {"item": "", "addOns": [], "drinks": []}
     
     # Extract item name from path
-    item_name = item_path.split("/")[-1].replace(".png", "")
-    order["item"] = item_name
-    selected_drink_index = None
+    itemName = item_path.split("/")[-1].replace(".png", "")
+    order["item"] = itemName
+    selectedDrinkIndex = None
     
     def update_order_details():
         """Update the order details and cost display (no dish line)."""
@@ -71,44 +71,44 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
         except:
             pass
     
-    def toggle_addon(addon_name, addon_index):
+    def toggle_addon(addonName, addonIndex):
         """Toggle add-on selection."""
-        if addon_name in order["addOns"]:
-            order["addOns"].remove(addon_name)
+        if addonName in order["addOns"]:
+            order["addOns"].remove(addonName)
             try:
-                addOnButtons[addon_index].configure(image=addOnPhotosNormal[addon_index])
+                addOnButtons[addonIndex].configure(image=addOnPhotosNormal[addonIndex])
             except Exception:
                 pass
         else:
-            order["addOns"].append(addon_name)
+            order["addOns"].append(addonName)
             try:
-                addOnButtons[addon_index].configure(image=addOnPhotosSelected[addon_index])
+                addOnButtons[addonIndex].configure(image=addOnPhotosSelected[addonIndex])
             except Exception:
                 pass
         update_order_details()
     
-    def toggle_drink(drink_name, drink_index):
+    def toggle_drink(drinkName, drinkIndex):
         """Toggle drink selection."""
-        nonlocal selected_drink_index
+        nonlocal selectedDrinkIndex
         # If clicking the currently selected drink, deselect it
-        if selected_drink_index == drink_index and drink_name in order["drinks"]:
+        if selectedDrinkIndex == drinkIndex and drinkName in order["drinks"]:
             order["drinks"].clear()
-            drinkButtons[drink_index].configure(image=drinkPhotosNormal[drink_index])
-            selected_drink_index = None
+            drinkButtons[drinkIndex].configure(image=drinkPhotosNormal[drinkIndex])
+            selectedDrinkIndex = None
             update_order_details()
             return
 
         # Deselect previously selected drink if any
-        if selected_drink_index is not None:
-            prev_idx = selected_drink_index
+        if selectedDrinkIndex is not None:
+            prev_idx = selectedDrinkIndex
             # Reset image and clear order drinks
             drinkButtons[prev_idx].configure(image=drinkPhotosNormal[prev_idx])
             order["drinks"].clear()
 
         # Select the new drink
-        order["drinks"].append(drink_name)
-        drinkButtons[drink_index].configure(image=drinkPhotosSelected[drink_index])
-        selected_drink_index = drink_index
+        order["drinks"].append(drinkName)
+        drinkButtons[drinkIndex].configure(image=drinkPhotosSelected[drinkIndex])
+        selectedDrinkIndex = drinkIndex
         update_order_details()
 
     def goBack():
@@ -258,7 +258,7 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
     def _confirm_and_add_to_cart():
         """Send selected dish/add-ons/drink to cart and return to menu."""
         try:
-            from Menu import append_cart_item
+            from Menu import appendCartItem
 
             # Resolve add-on image paths for selected names
             selected_addon_paths = []
@@ -280,7 +280,7 @@ def MakeChoicePage(menuPage, makeChoicePage, item_path): #(unsa e close, unsa e 
                 "drinks": selected_drink_paths,
             }
 
-            append_cart_item(order_entry)
+            appendCartItem(order_entry)
         except Exception as e:
             print(f"Failed to append cart item: {e}")
         # Navigate back to menu

@@ -40,20 +40,20 @@ IntroPage(root, landingPage)
 ads = ['reso/3rdAd.png', 'reso/1stAd.png', 'reso/2ndAd.png']
 
 # Preload the images ONCE
-preloaded_ads = []
+preloadedAds = []
 for a in ads:
     img = Image.open(a).resize((486, 738))
-    preloaded_ads.append(ImageTk.PhotoImage(img))
+    preloadedAds.append(ImageTk.PhotoImage(img))
 
-ad_index = 0
+adIndex = 0
 
 adLabel = Label(landingPage, bg=yellowPalette)
 adLabel.place(relx=0.06, rely=0.02, anchor='nw')
 
 def rotate_ad():
-    global ad_index
-    adLabel.config(image=preloaded_ads[ad_index])
-    ad_index = (ad_index + 1) % len(preloaded_ads)
+    global adIndex
+    adLabel.config(image=preloadedAds[adIndex])
+    adIndex = (adIndex + 1) % len(preloadedAds)
     landingPage.after(2100, rotate_ad)
 
 rotate_ad()

@@ -22,7 +22,7 @@ otherListImg = [
 ]
 
 # Price mapping - maps item name (filename without extension) to price
-item_prices = {
+itemPrices = {
     # Ramen
     "Tonkotsu Ramen": 399,
     "Shoyu Ramen": 349,

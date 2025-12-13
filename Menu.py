@@ -12,27 +12,27 @@ from MakeChoiceNoAddOns import MakeChoiceNoAddOnsPage
 from ReviewOrder import ReviewOrderPage
 
 # Global cart storage
-cart_items = []
-cart_image_refs = []
+cartItems = []
+cartImageRefs = []
 # Exposed references for external updates
-menu_cart_frame = None
-menu_red_palette = None
+menuCartFrame = None
+menuRedPalette = None
 # Track current section for routing
-current_section = "RAMEN SECTION"
+currentSection = "RAMEN SECTION"
 
-def append_cart_item(order_entry):
+def appendCartItem(order_entry):
     """Append an order to cart and refresh the cart strip.
 
     Accepts either a dict with keys dish/addOns/drinks or a legacy image path string.
     """
-    global cart_items, menu_cart_frame, menu_red_palette, cart_image_refs
+    global cartItems, menuCartFrame, menuRedPalette, cartImageRefs
     if isinstance(order_entry, dict):
-        cart_items.append(order_entry)
+        cartItems.append(order_entry)
     elif order_entry:
-        cart_items.append({"dish": order_entry, "addOns": [], "drinks": []})
+        cartItems.append({"dish": order_entry, "addOns": [], "drinks": []})
     # Refresh if frame/palette are ready
-    if menu_cart_frame is not None and menu_red_palette is not None:
-        render_cart(menu_cart_frame, cart_items, cart_image_refs, menu_red_palette)
+    if menuCartFrame is not None and menuRedPalette is not None:
+        render_cart(menuCartFrame, cartItems, cartImageRefs, menuRedPalette)
 
 def MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage):
     orderTypePage.pack_forget()
@@ -48,18 +48,18 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage)
     configure_scrollbar_style(redPalette, whitePalette)
 
     global topRightLogo, ramenText, myorderText, RAMENPhoto, DONPhoto, labelRamen
-    global cart_items, cart_image_refs, current_section
+    global cartItems, cartImageRefs, currentSection
 
     def go_to_make_choice(img_path):
         """Navigate to MakeChoice or MakeChoiceNoAddOns based on current section."""
-        if current_section == "RAMEN SECTION":
+        if currentSection == "RAMEN SECTION":
             MakeChoicePage(menuPage, makeChoicePage, img_path)
         else:
             MakeChoiceNoAddOnsPage(menuPage, makeChoicePage, img_path)
 
     def add_to_cart(img_path, cart_frame):
-        cart_items.append(img_path)
-        render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
+        cartItems.append(img_path)
+        render_cart(cart_frame, cartItems, cartImageRefs, redPalette)
 
     def goBack():
         menuPage.pack_forget()      # hide current page
@@ -120,11 +120,11 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage)
     cart_frame.bind("<Configure>", _sync_scrollregion)
 
     # Initial render of empty cart
-    render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
+    render_cart(cart_frame, cartItems, cartImageRefs, redPalette)
     # store for external refreshes
-    global menu_cart_frame, menu_red_palette
-    menu_cart_frame = cart_frame
-    menu_red_palette = redPalette
+    global menuCartFrame, menuRedPalette
+    menuCartFrame = cart_frame
+    menuRedPalette = redPalette
 
     # Store references to prevent garbage collection
     image_references = []
@@ -132,8 +132,8 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage)
     def display_items(item_list, section_name):
         """Clear and display items from the selected section."""
         nonlocal image_references
-        global current_section
-        current_section = section_name
+        global currentSection
+        currentSection = section_name
 
         # Update section header text/image
         global ramenText, labelRamen
@@ -214,9 +214,9 @@ def MenuPage(orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage)
 
 
     def Clear(cart_frame):
-        global cart_items
-        cart_items = []
-        render_cart(cart_frame, cart_items, cart_image_refs, redPalette)
+        global cartItems
+        cartItems = []
+        render_cart(cart_frame, cartItems, cartImageRefs, redPalette)
 
    # mid yellow breaker
     topBreaker = ctk.CTkFrame(menuPage, width=5, height=480, corner_radius=3, fg_color=yellowPalette)

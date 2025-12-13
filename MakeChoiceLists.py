@@ -13,7 +13,7 @@ drinksListImg = [
 ]
 
 # Price mapping - maps item name to price
-item_prices = {
+itemPrices = {
     # Add-ons
     "EGG": 9,
     "NOODLE": 19,
