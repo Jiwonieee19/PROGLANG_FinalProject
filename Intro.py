@@ -12,7 +12,7 @@ def IntroPage(root, landingPage):
     whitePalette = "#FFFFFF"
 
     global landingLogo
-    # Resizing the Image base sakong gusto
+
     img = Image.open('reso/landingLogo.png')
     reImg = img.resize((221,229))
     landingLogo = ImageTk.PhotoImage(reImg)
@@ -22,9 +22,8 @@ def IntroPage(root, landingPage):
     label = Label(introPage, text='"Where Noodles hug the Soul."', font=('Baloo Tammudu', 18), fg=whitePalette, bg=yellowPalette)
     label.place(relx=0.5, rely=0.59, anchor='center')
 
-       # Timer to remove intro after 3 seconds
     def showLanding():
         introPage.destroy()
         landingPage.pack(fill="both", expand=True)
 
-    root.after(3000, showLanding)  # 3000ms = 3 seconds
+    root.after(3500, showLanding) 

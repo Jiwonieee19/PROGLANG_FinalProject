@@ -219,3 +219,5 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
         except Exception:
             pass
     checkoutButton.place(relx=0.732, rely=0.95, anchor='center')
+
+    # TODO: Add display for each order price and overall total price 

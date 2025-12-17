@@ -3,6 +3,7 @@ from tkinter import *
 from PIL import Image, ImageTk
 from Intro import IntroPage
 from OrderType import OrderTypePage
+from DynamicFont import usingOurFontWithHeight
 
 root = Tk()
 
@@ -17,15 +18,11 @@ reviewOrderPage = Frame(root)
 lastPage = Frame(root)
 
 menuPage = Frame(root)
-# menuRamenPage = Frame(root)
-# menuDonburiPage = Frame(root)
-# menuOthersPage = Frame(root)
 
 yellowPalette = "#CDAE00"
 redPalette = "#730C03"
 whitePalette = "#FFFFFF"
 
-# Manipulating the headbar doesnt matter since we will remove this to achieve kiosk
 root.title("Python - KIOSK")
 iconLogo = PhotoImage(file='reso/LOGO.png')
 root.iconphoto(True, iconLogo)
@@ -36,10 +33,8 @@ landingPage.config(background=yellowPalette)
 
 IntroPage(root, landingPage)
 
-# Ads/Promo
 ads = ['reso/3rdAd.png', 'reso/1stAd.png', 'reso/2ndAd.png']
 
-# Preload the images ONCE
 preloadedAds = []
 for a in ads:
     img = Image.open(a).resize((486, 738))
@@ -66,8 +61,10 @@ landingLogo = ImageTk.PhotoImage(reImg)
 logoLabel = Label(landingPage, image=landingLogo, bg=yellowPalette)
 logoLabel.place(relx=0.02, rely=0, anchor='nw')
 
-btnStart = Button(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30), fg=whitePalette, bg=redPalette, borderwidth=0, highlightthickness=0, command=lambda: OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage))
-# btnStart = ctk.CTkButton(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30),  width=492, height=141, fg_color=whitePalette, bg_color=redPalette, command=lambda: OrderTypePage(landingPage, orderTypePage, orderRamenPage))
-btnStart.place(relx=0.5, rely=0.895, width=500, height=141, anchor='center')
+# btnStart = Button(landingPage, text="TAP TO START", font=('Baloo Tammudu', 30), fg=whitePalette, bg=redPalette, borderwidth=0, highlightthickness=0, command=lambda: OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage))
+text_photo = usingOurFontWithHeight('TAP TO START', 492, 141, 50, whitePalette, 90, 30)
+# Create label with the text image
+startButton = Button(landingPage, image=text_photo, bg=redPalette, borderwidth=0, highlightthickness=0, command=lambda: OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage, reviewOrderPage, lastPage))
+startButton.place(relx=0.5, rely=0.895, anchor='center')
 
 root.mainloop()

@@ -57,7 +57,7 @@ def OrderTypePage(landingPage, orderTypePage, menuPage, makeChoicePage, reviewOr
     reTagalogImg = TagalogImg.resize((132,70))
     Tagalog = ImageTk.PhotoImage(reTagalogImg)
 
-    BisayaImg = Image.open('reso/bisaya.png')
+    BisayaImg = Image.open('reso/bisaya1.png')
     reBisayaImg = BisayaImg.resize((132,70))
     Bisaya = ImageTk.PhotoImage(reBisayaImg)
 
