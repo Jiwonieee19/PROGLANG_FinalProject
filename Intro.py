@@ -26,4 +26,4 @@ def IntroPage(root, landingPage):
         introPage.destroy()
         landingPage.pack(fill="both", expand=True)
 
-    root.after(3500, showLanding) 
+    root.after(2500, showLanding) 

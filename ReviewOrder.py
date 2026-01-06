@@ -7,6 +7,8 @@ from ScrollbarStyle import configure_scrollbar_style
 
 def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa e open, unsa e next sa button)
     from Menu import cartItems  # Import cartItems from Menu
+    from MenuLists import itemPrices as menuPrices
+    from MakeChoiceLists import itemPrices as makechoicePrices
 
     menuPage.pack_forget()
     reviewOrderPage.pack(fill="both", expand=True)
@@ -64,6 +66,38 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
     labelChoice = Label(reviewOrderPage, image=reviewText, bg=redPalette)
     labelChoice.place(relx=0.5, rely=0.161, anchor='center')
 
+
+    # Calculate grand total for all orders
+    def extract_item_name(path):
+        import os
+        name = os.path.splitext(os.path.basename(path))[0]
+        return name.upper()
+
+    grand_total = 0
+    for order in cartItems:
+        if isinstance(order, str):
+            order = {"dish": order, "addOns": [], "drinks": []}
+        order_total = 0
+        if order.get("dish"):
+            dish_name = extract_item_name(order["dish"])
+            order_total += menuPrices.get(dish_name.title(), 0)
+        if order.get("addOns"):
+            for addon_path in order["addOns"]:
+                addon_name = extract_item_name(addon_path)
+                order_total += makechoicePrices.get(addon_name, 0)
+        if order.get("drinks"):
+            for drink_path in order["drinks"]:
+                drink_name = extract_item_name(drink_path)
+                order_total += makechoicePrices.get(drink_name, 0)
+        grand_total += order_total
+
+
+    # Place grand total label above the order list, outside the yellow bg, aligned left (same as ORDER 1)
+    # Use whitePalette for text color, and yellowPalette for background
+    # Use relx=0.09 to align with ORDER 1 (which is packed side=LEFT)
+    grandTotalLabel = Label(reviewOrderPage, text=f"Total Cost:  {grand_total}.00php", font=("Baloo Tammudu", 16, "bold"), fg=yellowPalette, bg=redPalette)
+    grandTotalLabel.place(relx=0.09, rely=0.22, anchor='w')
+
     # Create scrollable frame for orders
     canvas = Canvas(ReviewBg, bg=redPalette, highlightthickness=0, width=455, height=620)
     canvas.place(relx=0.5, rely=0.57, anchor='center')
@@ -111,7 +145,37 @@ def ReviewOrderPage (menuPage, reviewOrderPage, lastPage): #(unsa e close, unsa 
             orderHeaderText = usingOurFont(f'ORDER {idx}', 200, 28, whitePalette)
             headerLabel = Label(headerRow, image=orderHeaderText, bg=redPalette)
             headerLabel.image = orderHeaderText  # Keep reference
+
+            # Calculate order total cost
+            def extract_item_name(path):
+                # Extracts the item name from the image path
+                import os
+                name = os.path.splitext(os.path.basename(path))[0]
+                return name.upper()
+
+            order_total = 0
+            # Dish price
+            if order.get("dish"):
+                dish_name = extract_item_name(order["dish"])
+                order_total += menuPrices.get(dish_name.title(), 0)
+            # Add-ons price
+            if order.get("addOns"):
+                for addon_path in order["addOns"]:
+                    addon_name = extract_item_name(addon_path)
+                    order_total += makechoicePrices.get(addon_name, 0)
+            # Drinks price
+            if order.get("drinks"):
+                for drink_path in order["drinks"]:
+                    drink_name = extract_item_name(drink_path)
+                    # Drinks in MakeChoiceLists are all uppercase
+                    order_total += makechoicePrices.get(drink_name, 0)
+
+            # Place order number label (left)
             headerLabel.pack(side=LEFT)
+
+            # Show order total cost (right, before delete button)
+            totalCostLabel = Label(headerRow, text=f"{order_total}.00php", font=("Arial", 18, "bold"), fg=whitePalette, bg=redPalette)
+            totalCostLabel.pack(side=RIGHT, padx=(0, 0))
 
             # delete icon button on the right edge
             try:
