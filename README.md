@@ -11,3 +11,8 @@ IN FULLFILLMENT OF THE PROGRAMMING LANGUAGES FINAL PROJECT
   <img src="./ss/image-3.png" width="130" />
   <img src="./ss/image-4.png" width="130" />
 </p>
+
+
+VIEWABLE FIGMA LINK BELOW:
+
+https://www.figma.com/design/zuyYHb8yyj5fOusXRL6gLL/CS15_ProgLang?node-id=14-109&t=luR0QCN5yK1j2qLR-1
