@@ -59,7 +59,7 @@ def LastPage (reviewOrderPage, lastPage): #(unsa e close, unsa e open, unsa e ne
             except Exception:
                 pass
 
-    label2 = Label(lastPage, text='Please GRAB the RECEIPT', font=('Baloo Tammudu', 18), fg=whitePalette, bg=yellowPalette)
+    label2 = Label(lastPage, text='Please GRAB the RECEIPT!', font=('Baloo Tammudu', 18), fg=whitePalette, bg=yellowPalette)
     label2.place(relx=0.5, rely=0.85, anchor='center')
 
     # Icon grab
